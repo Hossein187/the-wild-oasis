@@ -11,7 +11,7 @@ import FormRow from '../../ui/FormRow';
 import { useCreateCabin } from './useCreateCabin';
 import { useEditCabin } from './useEditCabin';
 
-function CreateCabinForm({ cabinToEdit = {} }) {
+function CreateCabinForm({ cabinToEdit = {}, onClose }) {
   const { id: editId, ...editValues } = cabinToEdit;
   const isEditSession = Boolean(editId);
 
@@ -23,19 +23,22 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 
   const { isCreating, createCabin } = useCreateCabin();
   const { isEditing, editCabin } = useEditCabin();
-  
+
   const isWorking = isCreating || isEditing;
 
   function onSubmit(data) {
     const image = typeof data.image == 'string' ? data.image : data.image[0];
 
     if (isEditSession)
-      editCabin({ newCabinData: { ...data, image }, id: editId },
+      editCabin(
+        { newCabinData: { ...data, image }, id: editId },
         {
           onSuccess: (data) => {
             reset();
+            onClose?.(); // Close the form
           },
-        });
+        }
+      );
     else
       createCabin(
         { ...data, image: data.image[0] },
